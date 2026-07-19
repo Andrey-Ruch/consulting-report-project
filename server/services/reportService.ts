@@ -1,5 +1,6 @@
 import { getCompanyFinancials, CompanyFinancials } from './salesforceService';
 import { getLatestArticle, NewsArticle } from './newsService';
+import { generateMarkdown } from './geminiService';
 
 const formatFinancialsTable = (financials: CompanyFinancials[]): string => {
   if (financials.length === 0) return '_No financial data on record._';
@@ -27,11 +28,16 @@ export const generateReportMarkdown = async (
     getLatestArticle(companyId),
   ]);
 
-  // Scaffolding: renders the raw source data so steps 1-2 are verifiable in the UI.
+  // Scaffolding: proves the Gemini client works before any prompt design.
+  const llmOutput = await generateMarkdown(
+    'Reply with a markdown H1 saying Hello, and nothing else.'
+  );
+
   return (
     `# ${companyName} — Investment Report\n` +
     `**${companyId}**: *${reportType}*\n\n` +
     `## Sales & Profit Snapshot\n\n${formatFinancialsTable(financials)}\n\n` +
-    `## Latest News\n\n${formatArticle(article)}`
+    `## Latest News\n\n${formatArticle(article)}\n\n` +
+    `## LLM Smoke Test\n\n${llmOutput}`
   );
 };
